@@ -82,6 +82,25 @@ Check that the ID Chrome shows matches the one from step 1. Click the toolbar ic
 
 For development, `pnpm dev` serves with hot reload. Load `dist/` once and it updates live.
 
+## Troubleshooting
+
+**"Google rejected the OAuth client" / `bad client id`.** Google has no *Chrome Extension* OAuth client
+with your client ID that is registered to this extension's ID. Check, in order:
+
+1. **The IDs match.** The ID shown under CreatorHQ on `chrome://extensions` must equal the client's
+   **Item ID** in Google Cloud. The error message shows the ID too.
+   - If `dist/manifest.json` has no `"key"` field, `VITE_EXTENSION_KEY` wasn't set when you built. The
+     build prints a warning when that happens.
+   - Without the key, Chrome makes up an ID from the folder path. Add the key, rebuild, and update the
+     Item ID.
+2. **The client type is right.** It must be **Chrome Extension**. A *Web application* client always
+   fails this way.
+3. **You rebuilt and reloaded.** Editing `.env.local` changes nothing until you run `pnpm build` and click
+   **Reload** on `chrome://extensions`.
+4. **The client isn't brand new.** New clients can take from a few minutes to an hour to work.
+5. **Everything is in one project.** The client and YouTube Data API v3 must be in the same Google Cloud
+   project, and your account must be listed under **Test users** on the consent screen.
+
 ## Scripts
 
 | Command | What it does |

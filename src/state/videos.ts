@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { Channel, PublishedVideo } from '@/core/types'
-import { chromeTokenProvider, signOut } from '@/services/auth'
+import { chromeTokenProvider, describeAuthFailure, signOut } from '@/services/auth'
 import { getRepos } from '@/services/storage'
 import { createYouTubeClient, fetchChannelVideos, YouTubeError } from '@/services/youtube'
 
@@ -97,7 +97,7 @@ async function sync(set: Set, interactive: boolean): Promise<boolean> {
 
 function describe(error: unknown): string {
   if (error instanceof YouTubeError) {
-    if (error.code === 'auth') return `Couldn't sign in to Google: ${error.message}`
+    if (error.code === 'auth') return describeAuthFailure(error.message, chrome.runtime.id)
     return error.message
   }
   return error instanceof Error ? error.message : 'Something went wrong while syncing.'

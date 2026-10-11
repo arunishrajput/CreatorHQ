@@ -4,15 +4,25 @@ import pkg from './package.json' with { type: 'json' }
 
 const YOUTUBE_READONLY = 'https://www.googleapis.com/auth/youtube.readonly'
 
+/** Env values pasted by hand often carry stray spaces or quotes; either breaks OAuth. */
+const clean = (value: string | undefined) => value?.trim().replace(/^(['"])(.*)\1$/, '$2').trim() || undefined
+
 export default defineManifest(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
-  const clientId = env.VITE_GOOGLE_CLIENT_ID
-  const key = env.VITE_EXTENSION_KEY
+  const clientId = clean(env.VITE_GOOGLE_CLIENT_ID)
+  const key = clean(env.VITE_EXTENSION_KEY)
 
   if (!clientId) {
     console.warn(
       '\n[creatorhq] VITE_GOOGLE_CLIENT_ID is not set. The extension will build and planning works,\n' +
         '            but "Connect YouTube" will fail until you add it to .env.local (see README).\n',
+    )
+  }
+  if (!key) {
+    console.warn(
+      '\n[creatorhq] VITE_EXTENSION_KEY is not set. Chrome will derive the extension ID from the folder\n' +
+        '            you load, so it will not match your OAuth client and sign-in fails with "bad client id".\n' +
+        '            Run `pnpm keygen` and add the printed line to .env.local (see README).\n',
     )
   }
 

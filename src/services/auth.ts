@@ -10,6 +10,24 @@ export class AuthError extends Error {
   }
 }
 
+/**
+ * Turn chrome.identity's raw failures into something a creator can act on. The most common
+ * one, "bad client id", is always configuration: Google has no Chrome Extension OAuth client
+ * with this client ID registered for this extension ID.
+ */
+export function describeAuthFailure(message: string, extensionId: string): string {
+  if (/bad client id/i.test(message)) {
+    return (
+      `Google rejected the OAuth client. In Google Cloud it must be a "Chrome Extension" client whose ` +
+      `Item ID is ${extensionId} (this extension's ID). Fix it there, rebuild, reload the extension, and retry.`
+    )
+  }
+  if (/did not approve|user cancel|canceled|cancelled/i.test(message)) {
+    return 'Sign-in was cancelled. Click Connect to try again.'
+  }
+  return `Couldn't sign in to Google: ${message}`
+}
+
 export interface TokenProvider {
   getToken(interactive: boolean): Promise<string>
   invalidate(token: string): Promise<void>
